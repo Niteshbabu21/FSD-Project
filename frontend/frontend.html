@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SECONDSKIN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F2ED;
+      --ink: #111010;
+      --stone: #8A8680;
+      --bone: #E8E3DC;
+      --warm: #C9B99A;
+      --dust: #D4CFC8;
+      --accent: #2D2926;
+      --pop: #FF4D1C;
+      --surface: #EDEBE6;
+      --card: #FFFFFF;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--warm); border-radius: 2px; }
+
+    /* NAVBAR */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245, 242, 237, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--bone);
+      height: 62px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 36px; gap: 16px;
+    }
+    .logo {
+      font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 800;
+      letter-spacing: -0.02em; color: var(--ink); cursor: pointer;
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .logo em { font-style: italic; color: var(--pop); }
+
+    /* SEARCH BAR */
+    .search-wrap {
+      flex: 1; max-width: 420px; position: relative;
+    }
+    .search-input {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--bone);
+      color: var(--ink); padding: 9px 40px 9px 16px; border-radius: 100px;
+      font-family: inherit; font-size: 0.84rem; outline: none; transition: all 0.2s;
+    }
+    .search-input:focus { border-color: var(--ink); background: var(--card); box-shadow: 0 0 0 3px rgba(17,16,16,0.06); }
+    .search-input::placeholder { color: var(--warm); }
+    .search-icon {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--stone); font-size: 0.9rem; pointer-events: none;
+    }
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--card); border: 1px solid var(--bone); border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12); z-index: 200;
+      max-height: 380px; overflow-y: auto; display: none;
+    }
+    .search-results.show { display: block; animation: fadeUp 0.2s ease; }
+    .sr-item {
+      display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+      cursor: pointer; transition: background 0.15s; border-bottom: 1px solid var(--bone);
+    }
+    .sr-item:last-child { border-bottom: none; }
+    .sr-item:hover { background: var(--surface); }
+    .sr-img { width: 44px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--surface); flex-shrink: 0; }
+    .sr-info { flex: 1; }
+    .sr-name { font-size: 0.84rem; font-weight: 600; margin-bottom: 2px; }
+    .sr-meta { font-size: 0.72rem; color: var(--stone); }
+    .sr-price { font-family: 'Fraunces', serif; font-size: 0.9rem; font-weight: 700; flex-shrink: 0; }
+    .sr-empty { padding: 24px 16px; text-align: center; color: var(--stone); font-size: 0.84rem; }
+
+    .nav-center { display: flex; gap: 2px; flex-shrink: 0; }
+    .nav-center a {
+      font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--stone); text-decoration: none;
+      padding: 6px 14px; border-radius: 100px; transition: all 0.2s; cursor: pointer;
+    }
+    .nav-center a:hover, .nav-center a.active { color: var(--ink); background: var(--bone); }
+    .nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .cart-btn {
+      position: relative; background: var(--ink); color: var(--bg); border: none;
+      width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .cart-btn:hover { transform: scale(1.08); background: var(--pop); }
+    .cart-badge {
+      position: absolute; top: -3px; right: -3px; background: var(--pop); color: white;
+      font-size: 0.6rem; font-weight: 700; width: 16px; height: 16px; border-radius: 50%;
+      display: none; align-items: center; justify-content: center;
+    }
+    .btn-sign {
+      background: var(--ink); color: var(--bg); border: none; padding: 8px 18px;
+      border-radius: 100px; font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-sign:hover { background: var(--pop); }
+    .user-pill {
+      display: flex; align-items: center; gap: 8px; background: var(--bone);
+      border: 1px solid var(--dust); border-radius: 100px; padding: 5px 14px 5px 6px;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .user-pill:hover { border-color: var(--warm); }
+    .avatar {
+      width: 26px; height: 26px; background: var(--ink); color: var(--bg);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .user-name-pill { font-size: 0.8rem; font-weight: 600; }
+
+    /* PROFILE DROPDOWN */
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      background: var(--card); border: 1px solid var(--bone); border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12); min-width: 220px;
+      z-index: 200; overflow: hidden; display: none;
+    }
+    .profile-dropdown.show { display: block; animation: fadeUp 0.2s ease; }
+    .pd-header {
+      padding: 18px 18px 14px; border-bottom: 1px solid var(--bone);
+      background: var(--surface);
+    }
+    .pd-name { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+    .pd-email { font-size: 0.72rem; color: var(--stone); }
+    .pd-item {
+      display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+      cursor: pointer; transition: background 0.15s; font-size: 0.84rem; font-weight: 500;
+      border-bottom: 1px solid var(--bone);
+    }
+    .pd-item:last-child { border-bottom: none; }
+    .pd-item:hover { background: var(--surface); }
+    .pd-item .pd-ico { font-size: 1rem; width: 20px; text-align: center; }
+    .pd-item.danger { color: var(--pop); }
+
+    /* PAGES */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* HERO */
+    .hero {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 62px); overflow: hidden;
+    }
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 60px; border-right: 1px solid var(--bone);
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--stone); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-eyebrow::before {
+      content: ''; width: 24px; height: 1px; background: var(--pop); display: inline-block;
+    }
+    .hero-h1 {
+      font-family: 'Fraunces', serif; font-size: clamp(3.2rem, 6vw, 5.5rem);
+      font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 24px;
+    }
+    .hero-h1 em { font-style: italic; color: var(--pop); }
+    .hero-sub { font-size: 0.95rem; color: var(--stone); max-width: 340px; line-height: 1.6; margin-bottom: 36px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--ink); color: var(--bg); border: none; padding: 13px 30px;
+      border-radius: 100px; font-family: inherit; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+    }
+    .btn-primary:hover { background: var(--pop); transform: translateY(-2px); }
+    .btn-ghost {
+      background: transparent; color: var(--ink); border: 1.5px solid var(--dust);
+      padding: 13px 30px; border-radius: 100px; font-family: inherit;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--ink); }
+    .hero-stats {
+      display: flex; gap: 36px; margin-top: 52px; padding-top: 36px; border-top: 1px solid var(--bone);
+    }
+    .stat-num { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; }
+    .stat-label { font-size: 0.75rem; color: var(--stone); margin-top: 2px; }
+    .hero-right { position: relative; background: var(--bone); overflow: hidden; }
+    .hero-img-grid {
+      display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: 100%; gap: 2px;
+    }
+    .hero-img-cell { overflow: hidden; position: relative; }
+    .hero-img-cell img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .hero-img-cell:hover img { transform: scale(1.04); }
+    .hero-img-cell .cell-tag {
+      position: absolute; bottom: 10px; left: 10px;
+      background: rgba(245,242,237,0.9); backdrop-filter: blur(4px);
+      padding: 4px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* SECTION */
+    .section-wrap { max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+    .section-head {
+      display: flex; align-items: flex-end; justify-content: space-between; padding: 52px 0 28px;
+    }
+    .section-title {
+      font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em;
+    }
+    .section-title em { font-style: italic; color: var(--pop); }
+
+    /* FILTER TABS */
+    .filter-wrap { margin-bottom: 20px; }
+    .gender-row {
+      display: flex; gap: 4px; margin-bottom: 12px;
+      background: var(--bone); border-radius: 100px; padding: 4px; width: fit-content;
+    }
+    .gender-tab {
+      padding: 7px 20px; border-radius: 100px; border: none; background: transparent;
+      color: var(--stone); font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: all 0.18s; letter-spacing: 0.04em;
+    }
+    .gender-tab.active { background: var(--ink); color: var(--bg); }
+
+    .cat-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 32px; }
+    .cat-tab {
+      padding: 7px 18px; border-radius: 100px; border: 1.5px solid var(--dust);
+      background: transparent; color: var(--stone); font-family: inherit; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.18s; letter-spacing: 0.03em;
+    }
+    .cat-tab:hover { border-color: var(--ink); color: var(--ink); }
+    .cat-tab.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+    /* PRODUCT GRID */
+    .product-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px; background: var(--dust); border: 1px solid var(--dust);
+      border-radius: 16px; overflow: hidden; margin-bottom: 60px;
+    }
+    .product-card {
+      background: var(--card); overflow: hidden; transition: background 0.2s;
+      cursor: pointer; position: relative; animation: fadeUp 0.4s ease both;
+    }
+    .product-card:hover { background: var(--bg); }
+    .product-img { position: relative; overflow: hidden; aspect-ratio: 3/4; }
+    .product-img img {
+      width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-img img { transform: scale(1.05); }
+    .product-badge {
+      position: absolute; top: 12px; left: 12px; background: var(--bg); color: var(--stone);
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 100px;
+    }
+    .gender-badge {
+      position: absolute; top: 12px; right: 12px; font-size: 0.65rem; font-weight: 700;
+      padding: 3px 9px; border-radius: 100px;
+    }
+    .gender-badge.men { background: #dbeafe; color: #1d4ed8; }
+    .gender-badge.women { background: #fce7f3; color: #be185d; }
+    .gender-badge.unisex { background: #f3e8ff; color: #7c3aed; }
+
+    .quick-add {
+      position: absolute; bottom: 12px; left: 50%;
+      transform: translateX(-50%) translateY(4px); opacity: 0;
+      background: var(--ink); color: var(--bg); border: none; padding: 9px 20px;
+      border-radius: 100px; font-family: inherit; font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: all 0.22s; white-space: nowrap;
+    }
+    .product-card:hover .quick-add { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .quick-add:hover { background: var(--pop); }
+    .quick-add.done { background: #22a06b; }
+
+    .product-info { padding: 14px 16px 18px; }
+    .product-name {
+      font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+      margin-bottom: 4px; letter-spacing: -0.01em;
+    }
+    .product-desc { font-size: 0.75rem; color: var(--stone); line-height: 1.4; margin-bottom: 10px; }
+    .product-price {
+      font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em;
+    }
+    .product-price .old {
+      font-size: 0.78rem; font-weight: 400; color: var(--stone); text-decoration: line-through;
+      margin-left: 6px; font-family: 'Instrument Sans', sans-serif;
+    }
+    .sale-pct {
+      font-size: 0.65rem; font-weight: 700; background: #fef3c7; color: #92400e;
+      padding: 2px 6px; border-radius: 4px; margin-left: 6px;
+    }
+
+    /* CART */
+    .cart-wrap {
+      max-width: 1100px; margin: 0 auto; padding: 48px 40px;
+      display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start;
+    }
+    .cart-section, .summary-section {
+      background: var(--card); border: 1px solid var(--bone); border-radius: 16px; padding: 28px;
+    }
+    .sec-label {
+      font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); margin-bottom: 20px;
+    }
+    .cart-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--bone); }
+    .cart-item:last-child { border-bottom: none; }
+    .ci-img { width: 72px; height: 90px; border-radius: 8px; object-fit: cover; background: var(--surface); flex-shrink: 0; }
+    .ci-info { flex: 1; }
+    .ci-name { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+    .ci-cat { font-size: 0.72rem; color: var(--stone); letter-spacing: 0.06em; text-transform: uppercase; }
+    .ci-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .ci-price { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; }
+    .qty-row {
+      display: flex; align-items: center; gap: 0;
+      border: 1.5px solid var(--dust); border-radius: 100px; overflow: hidden;
+    }
+    .qbtn { background: none; border: none; width: 30px; height: 30px; cursor: pointer; font-size: 0.95rem; color: var(--stone); transition: color 0.15s; }
+    .qbtn:hover { color: var(--ink); }
+    .qval { font-size: 0.85rem; font-weight: 600; padding: 0 8px; min-width: 24px; text-align: center; }
+    .rm-btn { background: none; border: none; color: var(--dust); font-size: 1.1rem; cursor: pointer; transition: color 0.15s; }
+    .rm-btn:hover { color: var(--pop); }
+    .sum-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 8px 0; color: var(--stone); }
+    .sum-row.total-row {
+      font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 800; color: var(--ink);
+      border-top: 1.5px solid var(--bone); margin-top: 8px; padding-top: 16px;
+    }
+
+    /* PROFILE PAGE */
+    .profile-wrap { max-width: 800px; margin: 0 auto; padding: 48px 40px; }
+    .profile-hero {
+      background: var(--card); border: 1px solid var(--bone); border-radius: 20px;
+      padding: 32px; margin-bottom: 20px; display: flex; align-items: center; gap: 24px;
+    }
+    .profile-avatar-big {
+      width: 80px; height: 80px; background: var(--ink); color: var(--bg);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 800; flex-shrink: 0;
+    }
+    .profile-name { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .profile-email { font-size: 0.85rem; color: var(--stone); }
+    .profile-joined { font-size: 0.75rem; color: var(--warm); margin-top: 6px; letter-spacing: 0.04em; }
+    .profile-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    .pf-stat-card {
+      background: var(--card); border: 1px solid var(--bone); border-radius: 14px;
+      padding: 20px; text-align: center;
+    }
+    .pf-stat-num { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); }
+    .pf-stat-label { font-size: 0.72rem; color: var(--stone); margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .profile-section { background: var(--card); border: 1px solid var(--bone); border-radius: 16px; padding: 24px; margin-bottom: 14px; }
+    .ps-title { font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); margin-bottom: 18px; }
+    .pf-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--bone); font-size: 0.88rem; }
+    .pf-row:last-child { border-bottom: none; }
+    .pf-row-label { color: var(--stone); font-size: 0.82rem; }
+    .pf-row-val { font-weight: 600; }
+    .pf-edit-btn { background: var(--surface); border: 1px solid var(--dust); color: var(--stone); padding: 5px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .pf-edit-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .pf-action {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--bone); cursor: pointer; transition: opacity 0.15s;
+    }
+    .pf-action:last-child { border-bottom: none; }
+    .pf-action:hover { opacity: 0.7; }
+    .pf-action-label { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 500; }
+    .pf-action-ico { font-size: 1rem; }
+    .pf-action-arrow { color: var(--stone); font-size: 0.8rem; }
+
+    /* MODAL */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(17,16,16,0.5); backdrop-filter: blur(6px);
+      z-index: 300; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .overlay.show { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--card); border-radius: 20px; padding: 32px; width: 92%; max-width: 460px;
+      max-height: 90vh; overflow-y: auto; transform: translateY(16px) scale(0.98); transition: transform 0.25s;
+    }
+    .overlay.show .modal { transform: translateY(0) scale(1); }
+    .modal-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-ttl { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .modal-x {
+      background: var(--surface); border: none; width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; font-size: 0.9rem; color: var(--stone); transition: all 0.15s;
+    }
+    .modal-x:hover { background: var(--bone); color: var(--ink); }
+
+    /* AUTH */
+    .auth-wrap {
+      min-height: calc(100vh - 62px); display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px; background: var(--bg);
+    }
+    .auth-box { background: var(--card); border: 1px solid var(--bone); border-radius: 20px; padding: 40px; width: 100%; max-width: 380px; }
+    .auth-brand { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .auth-brand em { font-style: italic; color: var(--pop); }
+    .auth-tagline { font-size: 0.85rem; color: var(--stone); margin-bottom: 28px; }
+    .f-group { margin-bottom: 14px; }
+    .f-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 6px; display: block; }
+    .f-input { width: 100%; background: var(--bg); border: 1.5px solid var(--bone); color: var(--ink); padding: 11px 14px; border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.18s; }
+    .f-input:focus { border-color: var(--ink); }
+    .f-input::placeholder { color: var(--warm); }
+    .btn-full { width: 100%; background: var(--ink); color: var(--bg); border: none; padding: 13px; border-radius: 100px; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.02em; }
+    .btn-full:hover { background: var(--pop); }
+    .btn-full:disabled { opacity: 0.4; cursor: not-allowed; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--bone); }
+    .divider span { font-size: 0.72rem; color: var(--stone); }
+    .link-btn { background: none; border: none; color: var(--pop); font-family: inherit; font-size: inherit; font-weight: 600; cursor: pointer; padding: 0; }
+    .err-msg { color: var(--pop); font-size: 0.8rem; margin-top: 8px; display: none; }
+
+    /* CHECKOUT */
+    .steps-row { display: flex; gap: 0; margin-bottom: 24px; }
+    .step { flex: 1; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 0; text-align: center; border-bottom: 2px solid var(--dust); color: var(--stone); }
+    .step.on { color: var(--ink); border-color: var(--ink); }
+    .step.done { color: var(--warm); border-color: var(--warm); }
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .pay-opt { background: var(--bg); border: 1.5px solid var(--dust); border-radius: 12px; padding: 14px 12px; cursor: pointer; text-align: center; transition: all 0.18s; }
+    .pay-opt:hover { border-color: var(--ink); }
+    .pay-opt.sel { border-color: var(--ink); background: var(--bone); }
+    .pay-icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .pay-name { font-size: 0.78rem; font-weight: 600; }
+    .pay-detail-box { background: var(--bg); border: 1px solid var(--bone); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+    .card-grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ORDERS */
+    .orders-wrap { max-width: 860px; margin: 0 auto; padding: 48px 40px; }
+    .order-card { background: var(--card); border: 1px solid var(--bone); border-radius: 14px; padding: 22px 24px; margin-bottom: 14px; transition: border-color 0.2s; }
+    .order-card:hover { border-color: var(--warm); }
+    .order-hd { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .order-id { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; }
+    .order-dt { font-size: 0.75rem; color: var(--stone); margin-top: 2px; }
+    .status-badge { padding: 3px 10px; border-radius: 100px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .st-placed { background: #e8f4fd; color: #2d7ec4; }
+    .st-processing { background: #fef3e2; color: #b45309; }
+    .st-shipped { background: #f0ecff; color: #6d28d9; }
+    .st-dispatched { background: #f0ecff; color: #6d28d9; }
+    .st-delivered { background: #e6f7ee; color: #15803d; }
+    .st-cancelled { background: #fde8ec; color: #be123c; }
+    .order-items-txt { font-size: 0.82rem; color: var(--stone); }
+    .order-items-txt strong { color: var(--ink); font-weight: 600; }
+    .order-ft { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--bone); }
+    .order-tot { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .pay-tag { font-size: 0.7rem; font-weight: 600; background: var(--surface); padding: 3px 9px; border-radius: 6px; letter-spacing: 0.04em; }
+
+    /* TOAST */
+    .toast-stack { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .toast { background: var(--ink); color: var(--bg); padding: 10px 20px; border-radius: 100px; font-size: 0.82rem; font-weight: 500; animation: toastPop 0.3s ease; white-space: nowrap; }
+    .toast.ok { background: #22a06b; }
+    .toast.err { background: var(--pop); }
+    @keyframes toastPop { from { opacity: 0; transform: translateY(8px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* EMPTY / MISC */
+    .empty { text-align: center; padding: 80px 20px; color: var(--stone); }
+    .empty-ico { font-size: 3rem; margin-bottom: 14px; opacity: 0.5; }
+    .empty h3 { font-family: 'Fraunces', serif; font-size: 1.2rem; color: var(--ink); margin-bottom: 8px; }
+    .empty p { font-size: 0.85rem; }
+    .success-wrap { text-align: center; padding: 24px 0; }
+    .check-ring { width: 72px; height: 72px; background: #e6f7ee; border: 2px solid #22a06b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 18px; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.3); }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    .spin { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: rotate 0.6s linear infinite; }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    /* TICKER */
+    .ticker { background: var(--ink); color: var(--bg); padding: 8px 0; overflow: hidden; white-space: nowrap; }
+    .ticker-inner { display: inline-flex; animation: ticker 30s linear infinite; }
+    .ticker-inner span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0 28px; }
+    .ticker-inner .dot { color: var(--pop); }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { height: 50vw; max-height: 380px; }
+      .hero-left { padding: 48px 28px; border-right: none; border-bottom: 1px solid var(--bone); }
+      .cart-wrap { grid-template-columns: 1fr; }
+      .navbar { padding: 0 16px; gap: 10px; }
+      .section-wrap { padding: 0 20px; }
+      .orders-wrap, .profile-wrap { padding: 28px 20px; }
+      .profile-cards { grid-template-columns: repeat(3,1fr); }
+    }
+    @media (max-width: 600px) {
+      .nav-center { display: none; }
+      .hero-h1 { font-size: 2.8rem; }
+      .search-wrap { max-width: 180px; }
+      .profile-hero { flex-direction: column; text-align: center; }
+      .profile-cards { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── OUTFIT BUILDER ── */
+    .outfit-page { max-width: 1300px; margin: 0 auto; padding: 40px 40px 80px; }
+    .outfit-hero-head {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .outfit-tagline {
+      font-size: 0.82rem; color: var(--stone); margin-bottom: 36px; max-width: 480px; line-height: 1.6;
+    }
+    .outfit-layout { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+    @media(max-width:960px){ .outfit-layout { grid-template-columns: 1fr; } }
+
+    /* SLOTS */
+    .slots-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      gap: 14px;
+    }
+    .outfit-slot {
+      background: var(--surface); border: 2px dashed var(--dust);
+      border-radius: 20px; overflow: hidden; transition: all 0.22s;
+      position: relative; cursor: pointer; min-height: 260px;
+      display: flex; flex-direction: column;
+    }
+    .outfit-slot:hover { border-color: var(--warm); background: var(--bone); }
+    .outfit-slot.filled { border-style: solid; border-color: var(--ink); background: var(--card); }
+    .outfit-slot.highlight { border-color: var(--pop); background: #fff5f2; animation: slotPulse 0.5s ease; }
+    @keyframes slotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+
+    .slot-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--stone); padding: 12px 14px 0; display: flex; align-items: center; gap: 6px;
+    }
+    .slot-label .slot-ico { font-size: 0.85rem; }
+    .slot-empty-body {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 16px; gap: 8px; text-align: center;
+    }
+    .slot-plus {
+      width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--warm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--warm); transition: all 0.2s;
+    }
+    .outfit-slot:hover .slot-plus { border-color: var(--pop); color: var(--pop); transform: scale(1.1); }
+    .slot-hint { font-size: 0.72rem; color: var(--stone); }
+
+    .slot-filled-body { flex: 1; display: flex; flex-direction: column; }
+    .slot-filled-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+    .slot-filled-info { padding: 10px 12px 12px; }
+    .slot-filled-name { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slot-filled-price { font-family: 'Fraunces', serif; font-size: 0.9rem; font-weight: 700; }
+    .slot-remove {
+      position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+      background: var(--ink); color: var(--bg); border: none; border-radius: 50%;
+      font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.18s;
+    }
+    .outfit-slot.filled:hover .slot-remove { opacity: 1; }
+
+    /* SUMMARY PANEL */
+    .outfit-summary {
+      background: var(--card); border: 1px solid var(--bone); border-radius: 24px;
+      padding: 24px; position: sticky; top: 80px;
+    }
+    .summary-title {
+      font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 800;
+      letter-spacing: -0.03em; margin-bottom: 4px;
+    }
+    .summary-title em { font-style: italic; color: var(--pop); }
+    .summary-sub { font-size: 0.75rem; color: var(--stone); margin-bottom: 20px; }
+    .summary-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; min-height: 60px; }
+    .summary-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; background: var(--surface); border-radius: 12px;
+      animation: fadeUp 0.25s ease;
+    }
+    .summary-item img { width: 38px; height: 46px; object-fit: cover; border-radius: 8px; }
+    .summary-item-info { flex: 1; min-width: 0; }
+    .summary-item-name { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .summary-item-cat { font-size: 0.65rem; color: var(--stone); text-transform: uppercase; letter-spacing: 0.06em; }
+    .summary-item-price { font-family: 'Fraunces', serif; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .summary-empty-msg { font-size: 0.8rem; color: var(--stone); text-align: center; padding: 16px 0; }
+
+    .summary-divider { height: 1px; background: var(--bone); margin: 16px 0; }
+    .summary-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .summary-total-label { font-size: 0.8rem; color: var(--stone); font-weight: 600; }
+    .summary-total-price { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.03em; }
+    .summary-savings { font-size: 0.72rem; color: #22a06b; font-weight: 600; margin-bottom: 16px; }
+
+    .btn-add-all {
+      width: 100%; background: var(--ink); color: var(--bg); border: none;
+      padding: 14px; border-radius: 100px; font-family: inherit; font-size: 0.88rem;
+      font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+    .btn-add-all:hover { background: var(--pop); transform: translateY(-2px); }
+    .btn-add-all:disabled { background: var(--dust); color: var(--stone); cursor: not-allowed; transform: none; }
+    .btn-clear-outfit {
+      width: 100%; background: transparent; color: var(--stone); border: 1.5px solid var(--dust);
+      padding: 10px; border-radius: 100px; font-family: inherit; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-clear-outfit:hover { border-color: var(--pop); color: var(--pop); }
+
+    .vibe-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--bone); }
+    .vibe-tag {
+      padding: 4px 12px; border-radius: 100px; background: var(--bone);
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--stone); text-transform: uppercase;
+    }
+    .vibe-tag.active { background: var(--ink); color: var(--bg); }
+
+    /* PRODUCT PICKER MODAL */
+    .picker-overlay {
+      position: fixed; inset: 0; background: rgba(17,16,16,0.6); backdrop-filter: blur(6px);
+      z-index: 300; display: none; align-items: flex-end; justify-content: center;
+    }
+    .picker-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .picker-sheet {
+      background: var(--card); border-radius: 28px 28px 0 0; width: 100%; max-width: 900px;
+      max-height: 85vh; display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .picker-handle { width: 40px; height: 4px; background: var(--dust); border-radius: 2px; margin: 14px auto 0; flex-shrink: 0; }
+    .picker-head { padding: 16px 24px 12px; border-bottom: 1px solid var(--bone); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+    .picker-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+    .picker-close { background: var(--bone); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .picker-close:hover { background: var(--dust); }
+    .picker-filter { padding: 12px 24px; flex-shrink: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+    .picker-grid { padding: 0 16px 24px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; }
+    .picker-card {
+      background: var(--surface); border-radius: 16px; overflow: hidden; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.18s;
+    }
+    .picker-card:hover { border-color: var(--ink); background: var(--card); }
+    .picker-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+    .picker-card-info { padding: 8px 10px 10px; }
+    .picker-card-name { font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .picker-card-price { font-family: 'Fraunces', serif; font-size: 0.82rem; font-weight: 700; }
+
+    /* SAVED OUTFITS */
+    .saved-section { margin-top: 40px; }
+    .saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 14px; margin-top: 16px; }
+    .saved-card {
+      background: var(--card); border: 1px solid var(--bone); border-radius: 20px;
+      overflow: hidden; transition: all 0.2s; cursor: pointer;
+    }
+    .saved-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .saved-card-imgs { display: grid; grid-template-columns: 1fr 1fr; height: 160px; gap: 1px; background: var(--dust); }
+    .saved-card-imgs img { width: 100%; height: 100%; object-fit: cover; }
+    .saved-card-imgs .empty-slot-thumb { background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; opacity: 0.4; }
+    .saved-card-body { padding: 14px 16px; }
+    .saved-card-name { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+    .saved-card-meta { font-size: 0.72rem; color: var(--stone); display: flex; justify-content: space-between; }
+    .saved-card-total { font-family: 'Fraunces', serif; font-weight: 700; color: var(--ink); }
+    .saved-card-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-load-outfit, .btn-del-outfit {
+      flex: 1; border-radius: 100px; font-family: inherit; font-size: 0.75rem; font-weight: 600;
+      padding: 7px; cursor: pointer; transition: all 0.18s; border: 1.5px solid var(--dust);
+    }
+    .btn-load-outfit { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .btn-load-outfit:hover { background: var(--pop); border-color: var(--pop); }
+    .btn-del-outfit { background: transparent; color: var(--stone); }
+    .btn-del-outfit:hover { border-color: var(--pop); color: var(--pop); }
+  </style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo" onclick="showPage('home')">Second<em>Skin</em></div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search drops, brands, vibes…" oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)" />
+    <span class="search-icon">⌕</span>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <div class="nav-center">
+    <a onclick="showPage('home')" id="nav-home" class="active">Home</a>
+    <a onclick="showPage('outfit')" id="nav-outfit">✦ Outfit Builder</a>
+    <a onclick="showPage('orders')" id="nav-orders">Orders</a>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="showPage('cart')">
+      🛒
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <div id="authArea">
+      <button class="btn-sign" onclick="showPage('login')">Sign In</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast-stack" id="toasts"></div>
+
+<!-- HOME -->
+<div id="home" class="page active">
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">SS'25 Collection</div>
+      <h1 class="hero-h1">Wear What<br>Feels Like<br><em>You</em></h1>
+      <p class="hero-sub">Second Skin is your cultural uniform. Streetwear, baggy fits and Gen-Z essentials — curated for every identity, every vibe.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('shopSection').scrollIntoView({behavior:'smooth'})">Shop Now</button>
+        <button class="btn-ghost" onclick="showPage('outfit')">✦ Build an Outfit</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">6k+</div><div class="stat-label">Items dropped</div></div>
+        <div><div class="stat-num">Free</div><div class="stat-label">Delivery ₹999+</div></div>
+        <div><div class="stat-num">7d</div><div class="stat-label">Easy returns</div></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-img-grid">
+        <div class="hero-img-cell">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&auto=format&fit=crop" alt="Women fashion">
+          <div class="cell-tag">Women</div>
+        </div>
+        <div class="hero-img-cell">
+          <img src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=600&q=80&auto=format&fit=crop" alt="Men fashion">
+          <div class="cell-tag">Men</div>
+        </div>
+        <div class="hero-img-cell">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&auto=format&fit=crop" alt="Sneakers">
+          <div class="cell-tag">Streetwear</div>
+        </div>
+        <div class="hero-img-cell">
+          <img src="https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" alt="Hoodies">
+          <div class="cell-tag">Hoodies</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shopSection">
+    <div class="section-wrap">
+      <div class="section-head">
+        <div class="section-title">Latest <em>Drops</em></div>
+        <span id="itemCount" style="font-size:0.78rem;color:var(--stone)"></span>
+      </div>
+
+      <div class="filter-wrap">
+        <div class="gender-row">
+          <button class="gender-tab active" onclick="setGender(this,'All')">All</button>
+          <button class="gender-tab" onclick="setGender(this,'Men')">Men</button>
+          <button class="gender-tab" onclick="setGender(this,'Women')">Women</button>
+          <button class="gender-tab" onclick="setGender(this,'Unisex')">Unisex</button>
+        </div>
+        <div class="cat-row">
+          <button class="cat-tab active" onclick="setCat(this,'All')">All</button>
+          <button class="cat-tab" onclick="setCat(this,'Jeans')">Jeans</button>
+          <button class="cat-tab" onclick="setCat(this,'Hoodies')">Hoodies</button>
+          <button class="cat-tab" onclick="setCat(this,'Tees')">Tees</button>
+          <button class="cat-tab" onclick="setCat(this,'Sweatshirts')">Sweatshirts</button>
+          <button class="cat-tab" onclick="setCat(this,'Trousers')">Trousers</button>
+          <button class="cat-tab" onclick="setCat(this,'Tops')">Tops</button>
+          <button class="cat-tab" onclick="setCat(this,'Shorts')">Shorts</button>
+          <button class="cat-tab" onclick="setCat(this,'Coords')">Co-ords</button>
+          <button class="cat-tab" onclick="setCat(this,'Streetwear')">Streetwear</button>
+        </div>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- OUTFIT BUILDER -->
+<div id="outfit" class="page">
+  <div class="outfit-page">
+    <div class="outfit-hero-head">
+      <div>
+        <div class="section-title">Outfit <em>Builder</em></div>
+        <p class="outfit-tagline">Stop buying single pieces. Build a full fit — top, bottom, layer & more — and add the whole look to cart in one tap. 🔥</p>
+      </div>
+    </div>
+
+    <div class="outfit-layout">
+      <!-- SLOTS -->
+      <div>
+        <div class="slots-grid" id="outfitSlots"></div>
+
+        <!-- SAVED OUTFITS -->
+        <div class="saved-section">
+          <div class="section-title" style="font-size:1.3rem">Saved <em>Fits</em></div>
+          <div class="saved-grid" id="savedOutfitsGrid">
+            <div class="empty" style="padding:40px 20px;grid-column:1/-1">
+              <div class="empty-ico">🗂️</div>
+              <p>No saved fits yet. Build one and save it!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY PANEL -->
+      <div class="outfit-summary">
+        <div class="summary-title">Your <em>Fit</em></div>
+        <div class="summary-sub">Mix & match until it's 🔥</div>
+        <div class="summary-items" id="summaryItems">
+          <div class="summary-empty-msg">Add pieces to build your fit</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-total-row">
+          <div class="summary-total-label">TOTAL FIT PRICE</div>
+          <div class="summary-total-price" id="summaryTotal">₹0</div>
+        </div>
+        <div class="summary-savings" id="summarySavings"></div>
+        <button class="btn-add-all" id="btnAddAll" onclick="addAllToCart()" disabled>Add Full Fit to Cart 🛒</button>
+        <button class="btn-clear-outfit" onclick="clearOutfit()">Clear Outfit</button>
+
+        <div class="vibe-tags" id="vibeTags">
+          <div class="vibe-tag active" onclick="setVibe(this,'All')">All Vibes</div>
+          <div class="vibe-tag" onclick="setVibe(this,'Y2K')">Y2K</div>
+          <div class="vibe-tag" onclick="setVibe(this,'Dark Academia')">Dark Academia</div>
+          <div class="vibe-tag" onclick="setVibe(this,'Streetwear')">Streetwear</div>
+          <div class="vibe-tag" onclick="setVibe(this,'Cottagecore')">Cottagecore</div>
+          <div class="vibe-tag" onclick="setVibe(this,'Clean Girl')">Clean Girl</div>
+        </div>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bone)">
+          <div style="font-size:0.72rem;color:var(--stone);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase">Save this fit</div>
+          <div style="display:flex;gap:8px">
+            <input id="outfitNameInput" placeholder="Name your fit…" style="flex:1;background:var(--surface);border:1.5px solid var(--bone);border-radius:100px;padding:8px 14px;font-family:inherit;font-size:0.8rem;outline:none;color:var(--ink)" onfocus="this.style.borderColor='var(--ink)'" onblur="this.style.borderColor='var(--bone)'" />
+            <button onclick="saveOutfit()" style="background:var(--bone);border:none;border-radius:100px;padding:8px 14px;font-family:inherit;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.18s;white-space:nowrap" onmouseover="this.style.background='var(--ink)';this.style.color='var(--bg)'" onmouseout="this.style.background='var(--bone)';this.style.color='var(--ink)'">Save 💾</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT PICKER SHEET -->
+<div class="picker-overlay" id="pickerOverlay" onclick="closePicker(event)">
+  <div class="picker-sheet">
+    <div class="picker-handle"></div>
+    <div class="picker-head">
+      <div class="picker-title" id="pickerTitle">Pick a Top</div>
+      <button class="picker-close" onclick="closePicker()">✕</button>
+    </div>
+    <div class="picker-filter" id="pickerFilter"></div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<!-- CART -->
+
+<div id="cart" class="page">
+  <div class="cart-wrap" id="cartWrap"></div>
+</div>
+
+<!-- ORDERS -->
+<div id="orders" class="page">
+  <div class="orders-wrap">
+    <div class="section-head" style="padding-top:0">
+      <div class="section-title">My <em>Orders</em></div>
+      <button class="btn-ghost" onclick="loadOrders()" style="padding:8px 18px;font-size:0.78rem">Refresh</button>
+    </div>
+    <div id="ordersContent">
+      <div class="empty">
+        <div class="empty-ico">📦</div>
+        <h3>No orders yet</h3>
+        <p>Start shopping to see your orders here.</p>
+        <button class="btn-primary" onclick="showPage('home')" style="margin-top:20px;padding:10px 24px">Shop Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="page">
+  <div class="profile-wrap" id="profileWrap"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-brand">Second<em>Skin</em></div>
+      <div class="auth-tagline">Welcome back 👋</div>
+      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="loginEmail" type="email" placeholder="you@email.com" /></div>
+      <div class="f-group"><label class="f-label">Password</label><input class="f-input" id="loginPassword" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+      <div class="err-msg" id="loginErr"></div>
+      <button class="btn-full" id="loginBtn" onclick="doLogin()" style="margin-top:6px">Sign In</button>
+      <div class="divider"><span>or</span></div>
+      <p style="text-align:center;font-size:0.85rem;color:var(--stone)">New here? <button class="link-btn" onclick="showPage('signup')">Create account</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div id="signup" class="page">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-brand">Second<em>Skin</em></div>
+      <div class="auth-tagline">Join the culture 🔥</div>
+      <div class="f-group"><label class="f-label">Full Name</label><input class="f-input" id="signupName" placeholder="Your name" /></div>
+      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="signupEmail" type="email" placeholder="you@email.com" /></div>
+      <div class="f-group"><label class="f-label">Password</label><input class="f-input" id="signupPassword" type="password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()" /></div>
+      <div class="err-msg" id="signupErr"></div>
+      <button class="btn-full" id="signupBtn" onclick="doSignup()" style="margin-top:6px">Create Account</button>
+      <div class="divider"><span>or</span></div>
+      <p style="text-align:center;font-size:0.85rem;color:var(--stone)">Already a member? <button class="link-btn" onclick="showPage('login')">Sign in</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="overlay" id="coModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-ttl" id="coTitle">Checkout</div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div id="coBody"></div>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:4000";
+let allProducts = [];
+let currentCat = "All";
+let currentGender = "All";
+let user = null;
+let cart = [];
+let coStep = 1;
+let payMethod = "COD";
+let profileDropdownOpen = false;
+
+// TICKER
+const tItems = ["Free delivery on orders above ₹999","New drops every Friday","7-day hassle-free returns","Baggy fits & Korean cuts","GenZ approved fits","SecondSkin SS'25 is live","Men · Women · Unisex","Style is a language — speak loud","Oversized is the new fitted","Streetwear for the culture"];
+const tEl = document.getElementById("tickerInner");
+const full = [...tItems,...tItems].map(t=>`<span>${t}</span><span class="dot">·</span>`).join("");
+tEl.innerHTML = full + full;
+
+// ── PRODUCTS — Gen-Z Collection ──────────────────────────────────────────────
+const PRODUCTS = [
+
+  // ════════════ WOMEN — JEANS ════════════
+  { _id:"wj1",  gender:"Women", name:"Relaxed Fit Jeans",         category:"Jeans",       price:1699, oldPrice:2199, description:"Easy relaxed cut, mid-rise, vintage wash.",        imageUrl:"https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wj2",  gender:"Women", name:"Baggy Wide Leg Jeans",      category:"Jeans",       price:1899, oldPrice:2499, description:"Super baggy low-rise wide leg, light blue.",       imageUrl:"https://images.unsplash.com/photo-1475178626620-a4d074967452?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wj3",  gender:"Women", name:"Barrel Leg Jeans",          category:"Jeans",       price:1799,               description:"90s barrel fit, raw hem, mid-wash denim.",          imageUrl:"https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wj4",  gender:"Women", name:"Low-Rise Baggy Jeans",      category:"Jeans",       price:1999, oldPrice:2599, description:"Y2K low-rise ultra baggy, distressed knees.",      imageUrl:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wj5",  gender:"Women", name:"Straight Cut Jeans",        category:"Jeans",       price:1599,               description:"Clean straight leg, high-rise, dark indigo.",      imageUrl:"https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — HOODIES ════════════
+  { _id:"wh1",  gender:"Women", name:"Oversized Zip-Up Hoodie",   category:"Hoodies",     price:1499, oldPrice:1999, description:"Chunky zip, dropped shoulders, fleece-lined.",     imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wh2",  gender:"Women", name:"Vintage Washed Hoodie",     category:"Hoodies",     price:1299,               description:"Garment-dyed fleece pullover, faded tones.",        imageUrl:"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wh3",  gender:"Women", name:"Cropped Hoodie",            category:"Hoodies",     price:999,  oldPrice:1299, description:"Fitted crop with kangaroo pocket, ribbed hem.",   imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wh4",  gender:"Women", name:"Graphic Print Hoodie",      category:"Hoodies",     price:1399,               description:"Bold front graphic, boxy oversized fit.",          imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — TEES ════════════
+  { _id:"wt1",  gender:"Women", name:"Oversized Graphic Tee",     category:"Tees",        price:699,  oldPrice:999,  description:"180gsm cotton, anime/art print, boxy fit.",       imageUrl:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wt2",  gender:"Women", name:"Printed Band Tee",          category:"Tees",        price:599,                description:"Vintage band-style print, washed cotton.",          imageUrl:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wt3",  gender:"Women", name:"Oversized Plain Tee",       category:"Tees",        price:499,                description:"240gsm heavyweight drop-shoulder tee.",             imageUrl:"https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wt4",  gender:"Women", name:"Y2K Graphic Crop Tee",      category:"Tees",        price:649,                description:"Cropped with retro Y2K front print.",               imageUrl:"https://images.unsplash.com/photo-1554568218-0f1715e72254?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wt5",  gender:"Women", name:"Tie-Dye Oversized Tee",     category:"Tees",        price:799,  oldPrice:999,  description:"Hand tie-dyed, acid wash oversized cotton.",      imageUrl:"https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — SWEATSHIRTS ════════════
+  { _id:"ws1",  gender:"Women", name:"Oversized Crewneck Sweat",  category:"Sweatshirts", price:1199, oldPrice:1599, description:"Boxy crewneck, brushed fleece, minimal logo.",    imageUrl:"https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600&q=80&auto=format&fit=crop" },
+  { _id:"ws2",  gender:"Women", name:"Graphic Crewneck",          category:"Sweatshirts", price:1299,               description:"Printed slogan front, oversized sweatshirt.",      imageUrl:"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=600&q=80&auto=format&fit=crop" },
+  { _id:"ws3",  gender:"Women", name:"Vintage Fleece Sweatshirt", category:"Sweatshirts", price:999,                description:"Garment-dyed washed fleece, relaxed fit.",          imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — TROUSERS ════════════
+  { _id:"wtr1", gender:"Women", name:"Korean Wide Leg Trousers",  category:"Trousers",    price:1499, oldPrice:1999, description:"High-rise pleated wide leg, K-fashion cut.",      imageUrl:"https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtr2", gender:"Women", name:"Baggy Cargo Trousers",      category:"Trousers",    price:1799,               description:"Utility pockets, parachute-style wide leg.",       imageUrl:"https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtr3", gender:"Women", name:"Linen Wide Trousers",       category:"Trousers",    price:1399,               description:"Breathable linen, elastic waist, flowy drape.",    imageUrl:"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtr4", gender:"Women", name:"Korean Straight Trousers",  category:"Trousers",    price:1599, oldPrice:1999, description:"Tailored straight crop, K-drama inspired.",       imageUrl:"https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtr5", gender:"Women", name:"Parachute Trousers",        category:"Trousers",    price:1899,               description:"Nylon shell, drawstring waist, streetwear staple.", imageUrl:"https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — TOPS ════════════
+  { _id:"wtp1", gender:"Women", name:"Ribbed Tank Top",           category:"Tops",        price:499,                description:"Bodycon ribbed tank, second-skin stretch.",         imageUrl:"https://images.unsplash.com/photo-1554568218-0f1715e72254?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtp2", gender:"Women", name:"Off-Shoulder Top",          category:"Tops",        price:799,  oldPrice:999,  description:"Bardot neckline, smocked back, flowy.",           imageUrl:"https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtp3", gender:"Women", name:"Coquette Lace Cami",        category:"Tops",        price:699,                description:"Lace-trim spaghetti strap cami, soft cotton.",      imageUrl:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtp4", gender:"Women", name:"Printed Crop Top",          category:"Tops",        price:549,                description:"Bold all-over print, crop length, boxy.",          imageUrl:"https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtp5", gender:"Women", name:"Mesh Layer Top",            category:"Tops",        price:649,  oldPrice:799,  description:"Sheer mesh base, layering essential.",            imageUrl:"https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wtp6", gender:"Women", name:"Knit Crop Polo",            category:"Tops",        price:899,                description:"Ribbed knit polo with short hem, Y2K vibes.",      imageUrl:"https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — SHORTS ════════════
+  { _id:"wsh1", gender:"Women", name:"Baggy Denim Shorts",        category:"Shorts",      price:899,  oldPrice:1199, description:"Oversized denim shorts, frayed raw hem.",         imageUrl:"https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wsh2", gender:"Women", name:"Biker Shorts",              category:"Shorts",      price:699,                description:"High-rise compression biker shorts.",               imageUrl:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wsh3", gender:"Women", name:"Cargo Mini Shorts",         category:"Shorts",      price:999,                description:"Utility pocket mini shorts, parachute fabric.",    imageUrl:"https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wsh4", gender:"Women", name:"Pleated Mini Shorts",       category:"Shorts",      price:799,  oldPrice:999,  description:"Tennis-style pleated shorts, preppy aesthetic.",  imageUrl:"https://images.unsplash.com/photo-1535324492437-d8dea70a38a7?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — CO-ORDS ════════════
+  { _id:"wco1", gender:"Women", name:"Oversized Hoodie + Jogger Set", category:"Coords",  price:2499, oldPrice:2999, description:"Matching fleece set, relaxed hoodie and joggers.", imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wco2", gender:"Women", name:"Knit Co-ord Set",            category:"Coords",     price:1999,               description:"Ribbed crop top and midi skirt matching set.",     imageUrl:"https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wco3", gender:"Women", name:"Cargo Co-ord Set",           category:"Coords",     price:2299,               description:"Matching cargo jacket and wide-leg pant set.",     imageUrl:"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ WOMEN — STREETWEAR ════════════
+  { _id:"wst1", gender:"Women", name:"Varsity Bomber Jacket",     category:"Streetwear",  price:2799, oldPrice:3499, description:"Classic varsity, chenille patches, satin shell.",  imageUrl:"https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wst2", gender:"Women", name:"Puffer Jacket Cropped",     category:"Streetwear",  price:2499,               description:"Quilted ripstop cropped puffer, streetwear staple.", imageUrl:"https://images.unsplash.com/photo-1520975954732-35dd22299614?w=600&q=80&auto=format&fit=crop" },
+  { _id:"wst3", gender:"Women", name:"Y2K Track Jacket",          category:"Streetwear",  price:1799, oldPrice:2199, description:"Retro 2000s track jacket, colour-block panels.",  imageUrl:"https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — JEANS ════════════
+  { _id:"mj1",  gender:"Men", name:"Relaxed Fit Jeans",           category:"Jeans",       price:1799, oldPrice:2299, description:"Easy relaxed cut, mid-rise, vintage indigo wash.",  imageUrl:"https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mj2",  gender:"Men", name:"Baggy Jeans",                 category:"Jeans",       price:1999, oldPrice:2499, description:"Super baggy low-rise, skater inspired, light wash.", imageUrl:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mj3",  gender:"Men", name:"Wide Leg Carpenter Jeans",    category:"Jeans",       price:2199,               description:"Double-knee carpenter fit, hammer loop detail.",    imageUrl:"https://images.unsplash.com/photo-1475178626620-a4d074967452?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mj4",  gender:"Men", name:"Straight Cut Jeans",          category:"Jeans",       price:1699,               description:"Classic straight leg, rigid denim, dark indigo.",   imageUrl:"https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mj5",  gender:"Men", name:"Distressed Baggy Jeans",      category:"Jeans",       price:1999, oldPrice:2499, description:"Ripped knees, heavily distressed, baggy fit.",    imageUrl:"https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mj6",  gender:"Men", name:"Acid Wash Jeans",             category:"Jeans",       price:1899,               description:"Acid washed baggy denim, 90s skater aesthetic.",   imageUrl:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — HOODIES ════════════
+  { _id:"mh1",  gender:"Men", name:"Heavyweight Oversized Hoodie",category:"Hoodies",     price:1699, oldPrice:2199, description:"500gsm cotton fleece, boxy oversized, kangaroo pocket.", imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mh2",  gender:"Men", name:"Vintage Washed Hoodie",       category:"Hoodies",     price:1499,               description:"Garment-dyed pullover hoodie, faded stonewash.",    imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mh3",  gender:"Men", name:"Zip-Up Hoodie",               category:"Hoodies",     price:1599, oldPrice:1999, description:"Full-zip with chunky zipper, fleece interior.",   imageUrl:"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mh4",  gender:"Men", name:"Graphic Hoodie",              category:"Hoodies",     price:1799,               description:"Bold back print, oversized drop-shoulder fleece.",  imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mh5",  gender:"Men", name:"Quarter-Zip Hoodie",          category:"Hoodies",     price:1399, oldPrice:1699, description:"Quarter-zip in French terry, streetwear staple.", imageUrl:"https://images.unsplash.com/photo-1617952236317-0bd127407984?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — TEES ════════════
+  { _id:"mt1",  gender:"Men", name:"Oversized Graphic Tee",       category:"Tees",        price:699,  oldPrice:999,  description:"240gsm cotton, bold front/back print, boxy drop.", imageUrl:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mt2",  gender:"Men", name:"Printed Acid Tee",            category:"Tees",        price:599,                description:"Acid-wash treated with all-over dye print.",        imageUrl:"https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mt3",  gender:"Men", name:"Oversized Heavyweight Tee",   category:"Tees",        price:799,                description:"300gsm boxy tee, 3/4 length sleeves.",              imageUrl:"https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mt4",  gender:"Men", name:"Washed Band Tee",             category:"Tees",        price:649,                description:"Vintage band graphic, enzyme-washed cotton.",       imageUrl:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mt5",  gender:"Men", name:"Abstract Print Oversized Tee",category:"Tees",        price:749,  oldPrice:999,  description:"All-over abstract art print, oversized silhouette.", imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — SWEATSHIRTS ════════════
+  { _id:"msw1", gender:"Men", name:"Oversized Crewneck",          category:"Sweatshirts", price:1299, oldPrice:1699, description:"380gsm fleece crewneck, dropped shoulder.",        imageUrl:"https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msw2", gender:"Men", name:"Graphic Crewneck Sweat",      category:"Sweatshirts", price:1399,               description:"Statement print front, boxy oversized fit.",        imageUrl:"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msw3", gender:"Men", name:"Tie-Dye Crewneck",            category:"Sweatshirts", price:1199, oldPrice:1499, description:"Hand tie-dyed fleece, no two pieces the same.",   imageUrl:"https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msw4", gender:"Men", name:"Vintage Washed Crewneck",     category:"Sweatshirts", price:1099,               description:"Garment-dyed soft fleece, faded tones.",           imageUrl:"https://images.unsplash.com/photo-1617952236317-0bd127407984?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — TROUSERS ════════════
+  { _id:"mtr1", gender:"Men", name:"Korean Wide Leg Trousers",    category:"Trousers",    price:1699, oldPrice:2199, description:"Pleated high-waist wide leg, Korean fashion cut.",  imageUrl:"https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtr2", gender:"Men", name:"Baggy Cargo Trousers",        category:"Trousers",    price:1999,               description:"Relaxed utility cargos, oversized pockets.",       imageUrl:"https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtr3", gender:"Men", name:"Parachute Trousers",          category:"Trousers",    price:1899, oldPrice:2299, description:"Ripstop nylon shell, drawstring, tapered leg.",   imageUrl:"https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtr4", gender:"Men", name:"Korean Straight Trousers",    category:"Trousers",    price:1599,               description:"Tapered straight cut, two front pleat, minimalist.", imageUrl:"https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtr5", gender:"Men", name:"Linen Drawstring Trousers",   category:"Trousers",    price:1399,               description:"Relaxed linen blend, elasticated waist, airy fit.", imageUrl:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — SHORTS ════════════
+  { _id:"msh1", gender:"Men", name:"Baggy Basketball Shorts",     category:"Shorts",      price:799,  oldPrice:999,  description:"Mesh lined, below-knee baggy basketball shorts.",  imageUrl:"https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msh2", gender:"Men", name:"Cargo Shorts",                category:"Shorts",      price:999,                description:"Utility cargo shorts, relaxed fit, 6 pockets.",    imageUrl:"https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msh3", gender:"Men", name:"Denim Baggy Shorts",          category:"Shorts",      price:899,  oldPrice:1199, description:"Oversized denim shorts, mid-thigh length.",       imageUrl:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msh4", gender:"Men", name:"Athletic Shorts",             category:"Shorts",      price:699,                description:"Lightweight athletic shorts, 5-inch inseam.",      imageUrl:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80&auto=format&fit=crop" },
+  { _id:"msh5", gender:"Men", name:"Parachute Shorts",            category:"Shorts",      price:1099,               description:"Nylon ripstop shorts, double cargo pockets.",      imageUrl:"https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — TOPS ════════════
+  { _id:"mtp1", gender:"Men", name:"Sleeveless Muscle Tee",       category:"Tops",        price:499,                description:"Cut-off sleeveless ribbed tee, gym-to-street.",    imageUrl:"https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtp2", gender:"Men", name:"Ribbed Knit Tank",            category:"Tops",        price:599,  oldPrice:799,  description:"Bodycon ribbed tank in cotton-modal blend.",      imageUrl:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mtp3", gender:"Men", name:"Open-Knit Polo",              category:"Tops",        price:899,                description:"Crochet open-knit polo, resort wear vibes.",       imageUrl:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — CO-ORDS ════════════
+  { _id:"mco1", gender:"Men", name:"Hoodie + Jogger Trackset",    category:"Coords",      price:2699, oldPrice:3299, description:"Matching heavyweight fleece hoodie and jogger.",   imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mco2", gender:"Men", name:"Cargo Co-ord Set",            category:"Coords",      price:2499,               description:"Matching oversized jacket and cargo trousers.",    imageUrl:"https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mco3", gender:"Men", name:"Shorts + Tee Co-ord",         category:"Coords",      price:1399, oldPrice:1699, description:"Matching printed oversized tee and shorts set.",  imageUrl:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ MEN — STREETWEAR ════════════
+  { _id:"mst1", gender:"Men", name:"Varsity Jacket",              category:"Streetwear",  price:2999, oldPrice:3999, description:"Wool body, leather sleeves, chenille patches.",     imageUrl:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mst2", gender:"Men", name:"Puffer Jacket",               category:"Streetwear",  price:3499, oldPrice:4499, description:"Oversized puffer, quilted ripstop, side zip.",    imageUrl:"https://images.unsplash.com/photo-1520975954732-35dd22299614?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mst3", gender:"Men", name:"Coach Jacket",                category:"Streetwear",  price:2199,               description:"Nylon coach jacket, embroidered chest logo.",      imageUrl:"https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mst4", gender:"Men", name:"Denim Overshirt",             category:"Streetwear",  price:1899, oldPrice:2499, description:"Boxy denim overshirt, chest pockets, raw hem.",   imageUrl:"https://images.unsplash.com/photo-1512485800893-b08ec1ea59b1?w=600&q=80&auto=format&fit=crop" },
+  { _id:"mst5", gender:"Men", name:"Flannel Overshirt",           category:"Streetwear",  price:1599,               description:"Classic plaid flannel, relaxed overshirt fit.",    imageUrl:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80&auto=format&fit=crop" },
+
+  // ════════════ UNISEX DROPS ════════════
+  { _id:"un1",  gender:"Unisex", name:"Unisex Oversized Hoodie",  category:"Hoodies",     price:1599, oldPrice:1999, description:"Gender-neutral dropped shoulder fleece hoodie.",   imageUrl:"https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&auto=format&fit=crop" },
+  { _id:"un2",  gender:"Unisex", name:"Unisex Graphic Tee",       category:"Tees",        price:649,                description:"Unisex boxy fit, limited-edition art drop.",        imageUrl:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80&auto=format&fit=crop" },
+  { _id:"un3",  gender:"Unisex", name:"Unisex Baggy Jeans",       category:"Jeans",       price:1899,               description:"One size fits all baggy denim, ultra-relaxed.",    imageUrl:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80&auto=format&fit=crop" },
+  { _id:"un4",  gender:"Unisex", name:"Unisex Crewneck Sweat",    category:"Sweatshirts", price:1199, oldPrice:1499, description:"Classic unisex crewneck, heavyweight fleece.",    imageUrl:"https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600&q=80&auto=format&fit=crop" },
+  { _id:"un5",  gender:"Unisex", name:"Parachute Cargo Pants",    category:"Trousers",    price:2099,               description:"Genderless parachute nylon, oversized pockets.",   imageUrl:"https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600&q=80&auto=format&fit=crop" },
+  { _id:"un6",  gender:"Unisex", name:"Tie-Dye Hoodie + Short Set", category:"Coords",    price:2299, oldPrice:2799, description:"Matching tie-dye fleece hoodie and shorts.",      imageUrl:"https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=600&q=80&auto=format&fit=crop" },
+];
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  const s = localStorage.getItem("ss_user");
+  if (s) { user = JSON.parse(s); updateAuthUI(); }
+  cart = JSON.parse(localStorage.getItem("ss_cart") || "[]");
+  updateBadge();
+  allProducts = PRODUCTS;
+  renderProducts();
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-wrap")) {
+      document.getElementById("searchResults").classList.remove("show");
+    }
+    if (!e.target.closest(".user-pill")) {
+      document.querySelector(".profile-dropdown")?.classList.remove("show");
+      profileDropdownOpen = false;
+    }
+  });
+}
+
+// ── PAGES ──
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav-center a").forEach(a => a.classList.remove("active"));
+  const nav = document.getElementById("nav-" + id);
+  if (nav) nav.classList.add("active");
+  if (id === "cart") renderCart();
+  if (id === "orders") loadOrders();
+  if (id === "profile") renderProfile();
+  if (id === "outfit") renderOutfitPage();
+  document.getElementById("searchResults").classList.remove("show");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ── AUTH UI ──
+function updateAuthUI() {
+  const el = document.getElementById("authArea");
+  if (user) {
+    const ini = user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    el.innerHTML = `
+      <div class="user-pill" onclick="toggleProfileDropdown()">
+        <div class="avatar">${ini}</div>
+        <div class="user-name-pill">${user.name.split(" ")[0]}</div>
+        <div class="profile-dropdown" id="profileDropdown">
+          <div class="pd-header">
+            <div class="pd-name">${user.name}</div>
+            <div class="pd-email">${user.email}</div>
+            <div class="pd-joined">Member since ${new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</div>
+          </div>
+          <div class="pd-item" onclick="event.stopPropagation();showPage('profile')">
+            <span class="pd-ico">👤</span> My Profile
+          </div>
+          <div class="pd-item" onclick="event.stopPropagation();showPage('orders')">
+            <span class="pd-ico">📦</span> My Orders
+          </div>
+          <div class="pd-item" onclick="event.stopPropagation();showPage('cart')">
+            <span class="pd-ico">🛒</span> My Cart
+          </div>
+          <div class="pd-item danger" onclick="event.stopPropagation();doLogout()">
+            <span class="pd-ico">🚪</span> Sign Out
+          </div>
+        </div>
+      </div>`;
+  } else {
+    el.innerHTML = `<button class="btn-sign" onclick="showPage('login')">Sign In</button>`;
+  }
+}
+
+function toggleProfileDropdown() {
+  const d = document.getElementById("profileDropdown");
+  if (!d) return;
+  profileDropdownOpen = !profileDropdownOpen;
+  d.classList.toggle("show", profileDropdownOpen);
+}
+
+// ── SEARCH ──
+let searchTimeout;
+function handleSearch(query) {
+  clearTimeout(searchTimeout);
+  const resultsEl = document.getElementById("searchResults");
+  if (!query.trim()) { resultsEl.classList.remove("show"); return; }
+  searchTimeout = setTimeout(() => {
+    const q = query.toLowerCase();
+    const matches = allProducts.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.gender.toLowerCase().includes(q) ||
+      (p.description && p.description.toLowerCase().includes(q))
+    ).slice(0, 7);
+    if (!matches.length) {
+      resultsEl.innerHTML = `<div class="sr-empty">No drops found for "<strong>${query}</strong>"</div>`;
+    } else {
+      resultsEl.innerHTML = matches.map(p => `
+        <div class="sr-item" onclick="scrollToProduct('${p._id}')">
+          <img class="sr-img" src="${p.imageUrl}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=200'">
+          <div class="sr-info">
+            <div class="sr-name">${p.name}</div>
+            <div class="sr-meta">${p.gender} · ${p.category}</div>
+          </div>
+          <div class="sr-price">₹${p.price.toLocaleString('en-IN')}</div>
+        </div>`).join("");
+    }
+    resultsEl.classList.add("show");
+  }, 160);
+}
+
+function scrollToProduct(id) {
+  document.getElementById("searchResults").classList.remove("show");
+  document.getElementById("searchInput").value = "";
+  currentCat = "All"; currentGender = "All";
+  document.querySelectorAll(".gender-tab").forEach((b,i) => b.classList.toggle("active", i===0));
+  document.querySelectorAll(".cat-tab").forEach((b,i) => b.classList.toggle("active", i===0));
+  if (!document.getElementById("home").classList.contains("active")) {
+    showPage("home");
+    setTimeout(() => highlightCard(id), 350);
+  } else {
+    renderProducts();
+    setTimeout(() => highlightCard(id), 50);
+  }
+}
+
+function highlightCard(id) {
+  document.getElementById("shopSection")?.scrollIntoView({ behavior: "smooth" });
+  setTimeout(() => {
+    const btn = document.getElementById("qaBtn_" + id);
+    if (btn) {
+      const card = btn.closest(".product-card");
+      if (card) {
+        card.style.outline = "2px solid var(--pop)";
+        card.style.outlineOffset = "-2px";
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => { card.style.outline = ""; card.style.outlineOffset = ""; }, 2000);
+      }
+    }
+  }, 600);
+}
+
+// ── PROFILE PAGE ──
+function renderProfile() {
+  const wrap = document.getElementById("profileWrap");
+  if (!user) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-ico">🔐</div><h3>Not signed in</h3><p>Sign in to view your profile.</p><button class="btn-primary" onclick="showPage('login')" style="margin-top:20px;padding:10px 24px">Sign In</button></div>`;
+    return;
+  }
+  const ini = user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const cartTotal = cart.reduce((a,b)=>a+b.qty,0);
+  wrap.innerHTML = `
+    <div class="section-head" style="padding-top:0">
+      <div class="section-title">My <em>Profile</em></div>
+    </div>
+    <div class="profile-hero">
+      <div class="profile-avatar-big">${ini}</div>
+      <div>
+        <div class="profile-name">${user.name}</div>
+        <div class="profile-email">${user.email}</div>
+        <div class="profile-joined">✦ Member since ${new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</div>
+      </div>
+    </div>
+    <div class="profile-cards">
+      <div class="pf-stat-card">
+        <div class="pf-stat-num">${cartTotal}</div>
+        <div class="pf-stat-label">In Cart</div>
+      </div>
+      <div class="pf-stat-card">
+        <div class="pf-stat-num">0</div>
+        <div class="pf-stat-label">Orders</div>
+      </div>
+      <div class="pf-stat-card">
+        <div class="pf-stat-num">7d</div>
+        <div class="pf-stat-label">Returns</div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="ps-title">Account Details</div>
+      <div class="pf-row"><span class="pf-row-label">Full Name</span><span class="pf-row-val">${user.name}</span></div>
+      <div class="pf-row"><span class="pf-row-label">Email</span><span class="pf-row-val">${user.email}</span></div>
+      <div class="pf-row"><span class="pf-row-label">Password</span><span class="pf-row-val">••••••••</span></div>
+    </div>
+    <div class="profile-section">
+      <div class="ps-title">Quick Actions</div>
+      <div class="pf-action" onclick="showPage('orders')">
+        <div class="pf-action-label"><span class="pf-action-ico">📦</span> My Orders</div>
+        <span class="pf-action-arrow">→</span>
+      </div>
+      <div class="pf-action" onclick="showPage('cart')">
+        <div class="pf-action-label"><span class="pf-action-ico">🛒</span> My Cart</div>
+        <span class="pf-action-arrow">→</span>
+      </div>
+      <div class="pf-action" onclick="showPage('home')">
+        <div class="pf-action-label"><span class="pf-action-ico">🛍️</span> Browse Drops</div>
+        <span class="pf-action-arrow">→</span>
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="ps-title">Policies</div>
+      <div class="pf-row"><span class="pf-row-label">Free Shipping</span><span class="pf-row-val" style="color:#22a06b">On orders ₹999+</span></div>
+      <div class="pf-row"><span class="pf-row-label">Returns</span><span class="pf-row-val">7-day hassle-free</span></div>
+      <div class="pf-row"><span class="pf-row-label">New Drops</span><span class="pf-row-val">Every Friday</span></div>
+    </div>
+    <div style="margin-top:6px">
+      <button class="btn-full" onclick="doLogout()" style="background:var(--surface);color:var(--pop);border:1.5px solid #fde8ec">
+        🚪 Sign Out
+      </button>
+    </div>`;
+}
+
+// ── FILTERS ──
+function setGender(btn, gender) {
+  document.querySelectorAll(".gender-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentGender = gender;
+  renderProducts();
+}
+
+function setCat(btn, cat) {
+  document.querySelectorAll(".cat-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCat = cat;
+  renderProducts();
+}
+
+function renderProducts() {
+  const grid = document.getElementById("productGrid");
+  let list = allProducts;
+  if (currentGender !== "All") list = list.filter(p => p.gender === currentGender || p.gender === "Unisex");
+  if (currentCat !== "All") list = list.filter(p => p.category === currentCat);
+  document.getElementById("itemCount").textContent = list.length + " items";
+  if (!list.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1" class="empty"><div class="empty-ico">🔍</div><h3>Nothing here yet</h3><p>Check back for new drops</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map((p, i) => {
+    const pct = p.oldPrice ? Math.round((1 - p.price/p.oldPrice)*100) : 0;
+    const gClass = p.gender === "Women" ? "women" : p.gender === "Men" ? "men" : "unisex";
+    return `
+    <div class="product-card" style="animation-delay:${(i%20) * 0.03}s">
+      <div class="product-img">
+        <img src="${p.imageUrl}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400'">
+        <div class="product-badge">${p.category}</div>
+        <div class="gender-badge ${gClass}">${p.gender}</div>
+        <button class="quick-add" id="qaBtn_${p._id}" onclick="addToCart('${p._id}','${(p.name||'').replace(/'/g,"\\'")}',${p.price},'${p.category}','${p.gender}','${p.imageUrl||''}');event.stopPropagation()">+ Quick Add</button>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.description || ""}</div>
+        <div class="product-price">₹${p.price.toLocaleString('en-IN')}${p.oldPrice ? `<span class="old">₹${p.oldPrice.toLocaleString('en-IN')}</span>${pct?`<span class="sale-pct">${pct}% off</span>`:''}` : ''}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ── CART ──
+function saveCart() { localStorage.setItem("ss_cart", JSON.stringify(cart)); }
+function updateBadge() {
+  const total = cart.reduce((a, b) => a + b.qty, 0);
+  const el = document.getElementById("cartBadge");
+  el.textContent = total;
+  el.style.display = total > 0 ? "flex" : "none";
+}
+
+function addToCart(id, name, price, category, gender, imageUrl) {
+  const ex = cart.find(c => c.id === id);
+  if (ex) ex.qty++;
+  else cart.push({ id, name, price, category, gender, imageUrl, qty: 1 });
+  saveCart(); updateBadge();
+  const btn = document.getElementById("qaBtn_" + id);
+  if (btn) {
+    btn.textContent = "✓ Added"; btn.classList.add("done");
+    setTimeout(() => { btn.textContent = "+ Quick Add"; btn.classList.remove("done"); }, 1500);
+  }
+  toast("Added — " + name, "ok");
+}
+
+function updateQty(id, d) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+  saveCart(); updateBadge(); renderCart();
+}
+
+function removeItem(id) {
+  cart = cart.filter(c => c.id !== id);
+  saveCart(); updateBadge(); renderCart();
+}
+
+function renderCart() {
+  const wrap = document.getElementById("cartWrap");
+  if (!cart.length) {
+    wrap.innerHTML = `<div style="grid-column:1/-1" class="empty"><div class="empty-ico">🛒</div><h3>Cart is empty</h3><p>Add some pieces to start.</p><button class="btn-primary" onclick="showPage('home')" style="margin-top:20px;padding:10px 24px">Browse Drops</button></div>`;
+    return;
+  }
+  const sub = cart.reduce((a, b) => a + b.price * b.qty, 0);
+  const ship = sub >= 999 ? 0 : 99;
+  const total = sub + ship;
+  wrap.innerHTML = `
+    <div class="cart-section">
+      <div class="sec-label">Cart — ${cart.length} item${cart.length>1?'s':''}</div>
+      ${cart.map(item => `
+        <div class="cart-item">
+          <img class="ci-img" src="${item.imageUrl||'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=200'}" alt="${item.name}" onerror="this.src='https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=200'">
+          <div class="ci-info">
+            <div class="ci-name">${item.name}</div>
+            <div class="ci-cat">${item.gender} · ${item.category}</div>
+          </div>
+          <div class="ci-right">
+            <div class="ci-price">₹${(item.price*item.qty).toLocaleString('en-IN')}</div>
+            <div class="qty-row">
+              <button class="qbtn" onclick="updateQty('${item.id}',-1)">−</button>
+              <span class="qval">${item.qty}</span>
+              <button class="qbtn" onclick="updateQty('${item.id}',1)">+</button>
+            </div>
+            <button class="rm-btn" onclick="removeItem('${item.id}')">✕</button>
+          </div>
+        </div>`).join("")}
+    </div>
+    <div class="summary-section">
+      <div class="sec-label">Summary</div>
+      <div class="sum-row"><span>Subtotal (${cart.reduce((a,b)=>a+b.qty,0)} items)</span><span>₹${sub.toLocaleString('en-IN')}</span></div>
+      <div class="sum-row"><span>Shipping</span><span>${ship===0?'<span style="color:#22a06b">Free</span>':'₹'+ship}</span></div>
+      ${ship>0?`<div style="font-size:0.72rem;color:var(--stone);margin-bottom:4px">₹${(999-sub).toLocaleString('en-IN')} more for free shipping</div>`:''}
+      <div class="sum-row total-row"><span>Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>
+      <button class="btn-full" onclick="openCheckout(${total})" style="margin-top:20px">Checkout →</button>
+      <button class="btn-ghost" onclick="showPage('home')" style="width:100%;margin-top:10px;padding:11px;font-size:0.85rem;text-align:center;border-radius:100px;cursor:pointer">Continue Shopping</button>
+    </div>`;
+}
+
+// ── CHECKOUT ──
+function openCheckout(total) { coStep = 1; payMethod = "COD"; renderCoStep(total); document.getElementById("coModal").classList.add("show"); }
+function closeModal() { document.getElementById("coModal").classList.remove("show"); }
+
+function renderCoStep(total) {
+  const body = document.getElementById("coBody");
+  const title = document.getElementById("coTitle");
+  if (coStep === 1) {
+    title.textContent = "Delivery Details";
+    const em = user ? user.email : "";
+    body.innerHTML = `
+      <div class="steps-row"><div class="step on">1. Address</div><div class="step">2. Payment</div><div class="step">3. Done</div></div>
+      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="co_email" type="email" value="${em}" placeholder="you@email.com" /></div>
+      <div class="f-group"><label class="f-label">Address</label><input class="f-input" id="co_addr" placeholder="House no., Street, Area" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div><label class="f-label">City</label><input class="f-input" id="co_city" placeholder="City" /></div>
+        <div><label class="f-label">State</label><input class="f-input" id="co_state" placeholder="State" /></div>
+      </div>
+      <div class="f-group"><label class="f-label">Pincode</label><input class="f-input" id="co_pin" placeholder="6-digit pincode" maxlength="6" /></div>
+      <button class="btn-full" onclick="goToPay(${total})">Continue →</button>`;
+  } else if (coStep === 2) {
+    title.textContent = "Payment";
+    body.innerHTML = `
+      <div class="steps-row"><div class="step done">1. Address</div><div class="step on">2. Payment</div><div class="step">3. Done</div></div>
+      <div class="pay-grid">
+        <div class="pay-opt sel" id="pay_COD" onclick="selPay('COD')"><div class="pay-icon">💵</div><div class="pay-name">Cash on Delivery</div></div>
+        <div class="pay-opt" id="pay_UPI" onclick="selPay('UPI')"><div class="pay-icon">📱</div><div class="pay-name">UPI / GPay</div></div>
+        <div class="pay-opt" id="pay_Card" onclick="selPay('Card')"><div class="pay-icon">💳</div><div class="pay-name">Card</div></div>
+        <div class="pay-opt" id="pay_Wallet" onclick="selPay('Wallet')"><div class="pay-icon">👝</div><div class="pay-name">Wallet</div></div>
+      </div>
+      <div id="payDetails"><div class="pay-detail-box"><p style="font-size:0.82rem;color:var(--stone)">Pay cash at delivery. No advance needed.</p></div></div>
+      <div style="display:flex;justify-content:space-between;font-family:'Fraunces',serif;font-size:1.1rem;font-weight:800;padding:12px 0;border-top:1px solid var(--bone);margin:4px 0 12px">
+        <span>Total</span><span>₹${total.toLocaleString('en-IN')}</span>
+      </div>
+      <button class="btn-full" onclick="placeOrder(${total})">Place Order →</button>`;
+  } else {
+    title.textContent = "Order Placed!";
+    body.innerHTML = `
+      <div class="success-wrap">
+        <div class="check-ring">✓</div>
+        <h2 style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">You're all set ✦</h2>
+        <p style="color:var(--stone);font-size:0.85rem;margin-bottom:24px">Your order is confirmed. Track it in My Orders.</p>
+        <button class="btn-full" onclick="closeModal();showPage('orders')">View Orders</button>
+        <button class="btn-ghost" onclick="closeModal();showPage('home')" style="width:100%;margin-top:10px;padding:12px;border-radius:100px;cursor:pointer">Continue Shopping</button>
+      </div>`;
+  }
+}
+
+function goToPay(total) {
+  const email = document.getElementById("co_email")?.value.trim();
+  const addr = document.getElementById("co_addr")?.value.trim();
+  const city = document.getElementById("co_city")?.value.trim();
+  if (!email || !addr || !city) { toast("Fill all required fields", "err"); return; }
+  window._cd = { email, address: { line1: addr, city, state: document.getElementById("co_state")?.value.trim(), pincode: document.getElementById("co_pin")?.value.trim() }};
+  coStep = 2; renderCoStep(total);
+}
+
+function selPay(m) {
+  payMethod = m;
+  document.querySelectorAll(".pay-opt").forEach(e => e.classList.remove("sel"));
+  document.getElementById("pay_" + m)?.classList.add("sel");
+  const pd = document.getElementById("payDetails");
+  if (m === "UPI") pd.innerHTML = `<div class="pay-detail-box"><label class="f-label">UPI ID</label><input class="f-input" id="upi_id" placeholder="name@upi" style="margin-top:6px" /></div>`;
+  else if (m === "Card") pd.innerHTML = `<div class="pay-detail-box"><div class="f-group"><label class="f-label">Card Number</label><input class="f-input" id="card_num" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)" /></div><div class="card-grid-inputs"><div><label class="f-label">Expiry</label><input class="f-input" id="card_exp" placeholder="MM/YY" maxlength="5" /></div><div><label class="f-label">CVV</label><input class="f-input" id="card_cvv" placeholder="•••" maxlength="3" type="password" /></div></div><div class="f-group" style="margin-top:10px"><label class="f-label">Name on Card</label><input class="f-input" id="card_name" placeholder="Full name" /></div></div>`;
+  else if (m === "Wallet") pd.innerHTML = `<div class="pay-detail-box"><label class="f-label">Mobile Number</label><input class="f-input" id="wallet_num" placeholder="10-digit number" maxlength="10" style="margin-top:6px" /></div>`;
+  else pd.innerHTML = `<div class="pay-detail-box"><p style="font-size:0.82rem;color:var(--stone)">Pay cash at delivery. No advance needed.</p></div>`;
+}
+
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g,"").slice(0,16);
+  el.value = v.replace(/(.{4})/g,"$1 ").trim();
+}
+
+async function placeOrder(total) {
+  const btn = document.querySelector("#coBody .btn-full");
+  if (btn) { btn.disabled = true; btn.innerHTML = '<div class="spin"></div> Placing…'; }
+  const items = cart.map(c => ({ productId: c.id, name: c.name, price: c.price, quantity: c.qty }));
+  const cd = window._cd || {};
+  try {
+    await fetch(API + "/api/orders", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ userEmail: cd.email||user?.email||"guest@secondskin.in", items, totalAmount: total, paymentMethod: payMethod, address: cd.address||{} }) });
+  } catch {}
+  cart = []; saveCart(); updateBadge();
+  coStep = 3; renderCoStep(total);
+  toast("🎉 Order placed!", "ok");
+}
+
+// ── AUTH ──
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const errEl = document.getElementById("loginErr");
+  const btn = document.getElementById("loginBtn");
+  errEl.style.display = "none";
+  if (!email || !password) { errEl.textContent = "Fill all fields."; errEl.style.display = "block"; return; }
+  btn.disabled = true; btn.innerHTML = '<div class="spin"></div>';
+  try {
+    const res = await fetch(API + "/api/auth/login", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ email, password }) });
+    const data = await res.json();
+    if (res.ok) { user = data; localStorage.setItem("ss_user", JSON.stringify(data)); updateAuthUI(); toast("Hey " + data.name.split(" ")[0] + " 👋", "ok"); showPage("home"); }
+    else { errEl.textContent = data.message || "Login failed."; errEl.style.display = "block"; }
+  } catch { errEl.textContent = "Server not reachable."; errEl.style.display = "block"; }
+  btn.disabled = false; btn.innerHTML = "Sign In";
+}
+
+async function doSignup() {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value.trim();
+  const errEl = document.getElementById("signupErr");
+  const btn = document.getElementById("signupBtn");
+  errEl.style.display = "none";
+  if (!name || !email || !password) { errEl.textContent = "Fill all fields."; errEl.style.display = "block"; return; }
+  if (password.length < 6) { errEl.textContent = "Password min 6 chars."; errEl.style.display = "block"; return; }
+  btn.disabled = true; btn.innerHTML = '<div class="spin"></div>';
+  try {
+    const res = await fetch(API + "/api/auth/signup", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ name, email, password }) });
+    const data = await res.json();
+    if (res.ok) { user = data; localStorage.setItem("ss_user", JSON.stringify(data)); updateAuthUI(); toast("Welcome, " + name.split(" ")[0] + "! 🔥", "ok"); showPage("home"); }
+    else { errEl.textContent = data.message || "Signup failed."; errEl.style.display = "block"; }
+  } catch { errEl.textContent = "Server not reachable."; errEl.style.display = "block"; }
+  btn.disabled = false; btn.innerHTML = "Create Account";
+}
+
+function doLogout() { user = null; localStorage.removeItem("ss_user"); updateAuthUI(); toast("See you soon 👋"); showPage("home"); }
+
+// ── ORDERS ──
+async function loadOrders() {
+  const el = document.getElementById("ordersContent");
+  if (!user?.email) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">🔐</div><h3>Sign in to view orders</h3><p>Log in to see your order history.</p><button class="btn-primary" onclick="showPage('login')" style="margin-top:20px;padding:10px 24px">Sign In</button></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="text-align:center;padding:60px"><div class="spin" style="border-top-color:var(--stone);margin:0 auto"></div></div>`;
+  try {
+    const res = await fetch(API + "/api/orders?email=" + encodeURIComponent(user.email));
+    const orders = await res.json();
+    if (!orders.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-ico">📦</div><h3>No orders yet</h3><p>Your orders will appear here.</p><button class="btn-primary" onclick="showPage('home')" style="margin-top:20px;padding:10px 24px">Shop Now</button></div>`;
+      return;
+    }
+
+    const steps = ['placed', 'processing', 'dispatched', 'delivered'];
+    const stepLabels = { placed: 'Order Placed', processing: 'Processing', dispatched: 'Dispatched', delivered: 'Delivered' };
+    const stepIcons  = { placed: '✦', processing: '⚙', dispatched: '🚚', delivered: '✓' };
+
+    el.innerHTML = orders.map(o => {
+      const currentIdx = o.orderStatus === 'cancelled' ? -1 : steps.indexOf(o.orderStatus);
+      const isCancelled = o.orderStatus === 'cancelled';
+
+      const trackerHTML = isCancelled
+        ? `<div style="margin:16px 0 4px;padding:10px 14px;background:#fde8ec;border-radius:10px;font-size:0.8rem;font-weight:600;color:#be123c">✕ Order Cancelled</div>`
+        : `<div style="margin:16px 0 8px;display:flex;align-items:center;gap:0">
+            ${steps.map((s, i) => {
+              const done    = i <= currentIdx;
+              const current = i === currentIdx;
+              const trackEntry = (o.tracking || []).find(t => t.status === s);
+              const timeStr = trackEntry ? new Date(trackEntry.timestamp).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+              return `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative">
+                  ${i < steps.length - 1 ? `<div style="position:absolute;top:14px;left:50%;width:100%;height:2px;background:${i < currentIdx ? 'var(--ink)' : 'var(--dust)'};z-index:0"></div>` : ''}
+                  <div style="width:28px;height:28px;border-radius:50%;border:2px solid ${done ? 'var(--ink)' : 'var(--dust)'};background:${current ? 'var(--ink)' : done ? 'var(--ink)' : 'var(--card)'};display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:${done ? 'var(--bg)' : 'var(--dust)'};z-index:1;position:relative;transition:all 0.3s">${stepIcons[s]}</div>
+                  <div style="font-size:0.65rem;font-weight:${current?'700':'500'};color:${done?'var(--ink)':'var(--stone)'};margin-top:5px;text-align:center;line-height:1.2">${stepLabels[s]}</div>
+                  ${timeStr ? `<div style="font-size:0.6rem;color:var(--stone);margin-top:2px;text-align:center">${timeStr}</div>` : ''}
+                </div>`;
+            }).join("")}
+          </div>`;
+
+      return `
+        <div class="order-card">
+          <div class="order-hd">
+            <div>
+              <div class="order-id">#${o._id.slice(-8).toUpperCase()}</div>
+              <div class="order-dt">${new Date(o.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+            </div>
+            <span class="status-badge st-${o.orderStatus||'placed'}">${(o.orderStatus||'placed').toUpperCase()}</span>
+          </div>
+
+          ${trackerHTML}
+
+          <div class="order-items-txt" style="margin-top:12px">
+            ${o.items.map(i=>`<strong>${i.name}</strong> ×${i.quantity}`).join(" · ")}
+          </div>
+          <div class="order-ft">
+            <div class="order-tot">₹${o.totalAmount.toLocaleString('en-IN')}</div>
+            <span class="pay-tag">${o.paymentMethod||'COD'}</span>
+          </div>
+        </div>`;
+    }).join("");
+  } catch {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">⚠️</div><h3>Could not load orders</h3><p>Make sure the backend is running.</p></div>`;
+  }
+}
+
+// ── TOAST ──
+function toast(msg, type = "") {
+  const el = document.getElementById("toasts");
+  const d = document.createElement("div");
+  d.className = "toast " + type;
+  d.textContent = msg;
+  el.appendChild(d);
+  setTimeout(() => { d.style.opacity = "0"; d.style.transform = "translateY(4px)"; d.style.transition = "all 0.3s"; setTimeout(() => d.remove(), 300); }, 2600);
+}
+
+// ── OUTFIT BUILDER ───────────────────────────────────────────────────────────
+
+const OUTFIT_SLOTS = [
+  { key:"top",    label:"Top",       icon:"👕", cats:["Tees","Tops","Sweatshirts"] },
+  { key:"hoodie", label:"Hoodie / Layer", icon:"🧥", cats:["Hoodies","Streetwear"] },
+  { key:"bottom", label:"Bottom",    icon:"👖", cats:["Jeans","Trousers","Shorts"] },
+  { key:"coords", label:"Co-ords",   icon:"✦",  cats:["Coords"] },
+];
+
+let currentOutfit = {}; // key -> product
+let pickerSlotKey = null;
+let savedOutfits = JSON.parse(localStorage.getItem("ss_outfits") || "[]");
+let currentVibe = "All";
+
+const VIBE_MAP = {
+  "Y2K":          ["Jeans","Tops","Coords"],
+  "Dark Academia": ["Hoodies","Sweatshirts","Trousers","Streetwear"],
+  "Streetwear":   ["Streetwear","Hoodies","Jeans","Shorts"],
+  "Cottagecore":  ["Tops","Tees","Trousers"],
+  "Clean Girl":   ["Tees","Tops","Trousers","Jeans"],
+};
+
+function renderOutfitPage() {
+  renderSlots();
+  renderSummary();
+  renderSavedOutfits();
+}
+
+function renderSlots() {
+  const grid = document.getElementById("outfitSlots");
+  grid.innerHTML = OUTFIT_SLOTS.map(slot => {
+    const product = currentOutfit[slot.key];
+    if (product) {
+      return `
+        <div class="outfit-slot filled" onclick="openPicker('${slot.key}')">
+          <button class="slot-remove" onclick="event.stopPropagation();removeSlot('${slot.key}')">✕</button>
+          <div class="slot-label"><span class="slot-ico">${slot.icon}</span>${slot.label}</div>
+          <div class="slot-filled-body">
+            <img class="slot-filled-img" src="${product.imageUrl}" alt="${product.name}" />
+            <div class="slot-filled-info">
+              <div class="slot-filled-name">${product.name}</div>
+              <div class="slot-filled-price">₹${product.price.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      return `
+        <div class="outfit-slot" onclick="openPicker('${slot.key}')">
+          <div class="slot-label"><span class="slot-ico">${slot.icon}</span>${slot.label}</div>
+          <div class="slot-empty-body">
+            <div class="slot-plus">+</div>
+            <div class="slot-hint">Tap to pick a ${slot.label.toLowerCase()}</div>
+          </div>
+        </div>`;
+    }
+  }).join("");
+}
+
+function renderSummary() {
+  const items = Object.values(currentOutfit);
+  const el = document.getElementById("summaryItems");
+  const totalEl = document.getElementById("summaryTotal");
+  const savingsEl = document.getElementById("summarySavings");
+  const btn = document.getElementById("btnAddAll");
+
+  if (!items.length) {
+    el.innerHTML = `<div class="summary-empty-msg">Add pieces to build your fit</div>`;
+    totalEl.textContent = "₹0";
+    savingsEl.textContent = "";
+    btn.disabled = true;
+    return;
+  }
+
+  el.innerHTML = items.map(p => `
+    <div class="summary-item">
+      <img src="${p.imageUrl}" alt="${p.name}" />
+      <div class="summary-item-info">
+        <div class="summary-item-name">${p.name}</div>
+        <div class="summary-item-cat">${p.category}</div>
+      </div>
+      <div class="summary-item-price">₹${p.price.toLocaleString('en-IN')}</div>
+    </div>`).join("");
+
+  const total = items.reduce((s, p) => s + p.price, 0);
+  const oldTotal = items.reduce((s, p) => s + (p.oldPrice || p.price), 0);
+  const saved = oldTotal - total;
+
+  totalEl.textContent = "₹" + total.toLocaleString('en-IN');
+  savingsEl.textContent = saved > 0 ? `You save ₹${saved.toLocaleString('en-IN')} on this fit 🎉` : "";
+  btn.disabled = false;
+}
+
+function removeSlot(key) {
+  delete currentOutfit[key];
+  renderSlots();
+  renderSummary();
+}
+
+function clearOutfit() {
+  currentOutfit = {};
+  renderSlots();
+  renderSummary();
+  toast("Outfit cleared");
+}
+
+function addAllToCart() {
+  const items = Object.values(currentOutfit);
+  if (!items.length) return;
+  items.forEach(p => {
+    const existing = cart.find(c => c.id === p._id);
+    if (existing) existing.qty++;
+    else cart.push({ id: p._id, name: p.name, price: p.price, imageUrl: p.imageUrl, qty: 1 });
+  });
+  saveCart(); updateBadge();
+  toast(`${items.length} pieces added to cart 🛒`, "ok");
+  showPage("cart");
+}
+
+function setVibe(el, vibe) {
+  currentVibe = vibe;
+  document.querySelectorAll(".vibe-tag").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  toast(`Vibe: ${vibe} ✦`);
+}
+
+// PICKER
+function openPicker(slotKey) {
+  pickerSlotKey = slotKey;
+  const slot = OUTFIT_SLOTS.find(s => s.key === slotKey);
+  document.getElementById("pickerTitle").textContent = `Pick a ${slot.label}`;
+
+  // filter buttons
+  const allCats = [...new Set(PRODUCTS.map(p => p.category))];
+  const relevantCats = slot.cats;
+  const filterEl = document.getElementById("pickerFilter");
+  filterEl.innerHTML = [`<button class="cat-tab active" onclick="filterPicker(this, '${slotKey}', 'All')">All</button>`,
+    ...relevantCats.map(c => `<button class="cat-tab" onclick="filterPicker(this, '${slotKey}', '${c}')">${c}</button>`)
+  ].join("");
+
+  renderPickerGrid(slotKey, "All");
+  document.getElementById("pickerOverlay").classList.add("show");
+}
+
+function filterPicker(el, slotKey, cat) {
+  document.querySelectorAll(".picker-filter .cat-tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  renderPickerGrid(slotKey, cat);
+}
+
+function renderPickerGrid(slotKey, cat) {
+  const slot = OUTFIT_SLOTS.find(s => s.key === slotKey);
+  let products = PRODUCTS.filter(p => slot.cats.includes(p.category));
+  if (cat !== "All") products = products.filter(p => p.category === cat);
+
+  // vibe filter
+  if (currentVibe !== "All" && VIBE_MAP[currentVibe]) {
+    const vibeCats = VIBE_MAP[currentVibe];
+    products = products.filter(p => vibeCats.includes(p.category));
+    if (!products.length) products = PRODUCTS.filter(p => slot.cats.includes(p.category));
+  }
+
+  document.getElementById("pickerGrid").innerHTML = products.map(p => `
+    <div class="picker-card" onclick="selectProduct('${p._id}')">
+      <img src="${p.imageUrl}" alt="${p.name}" loading="lazy" />
+      <div class="picker-card-info">
+        <div class="picker-card-name">${p.name}</div>
+        <div class="picker-card-price">₹${p.price.toLocaleString('en-IN')}</div>
+      </div>
+    </div>`).join("") || `<div style="padding:40px;text-align:center;color:var(--stone);font-size:0.85rem;grid-column:1/-1">No items found for this vibe + category combo. Try a different vibe!</div>`;
+}
+
+function selectProduct(id) {
+  const product = PRODUCTS.find(p => p._id === id);
+  if (!product || !pickerSlotKey) return;
+  currentOutfit[pickerSlotKey] = product;
+  closePicker();
+
+  // highlight the filled slot briefly
+  setTimeout(() => {
+    const slots = document.querySelectorAll(".outfit-slot");
+    const idx = OUTFIT_SLOTS.findIndex(s => s.key === pickerSlotKey);
+    if (slots[idx]) { slots[idx].classList.add("highlight"); setTimeout(() => slots[idx].classList.remove("highlight"), 600); }
+  }, 50);
+
+  renderSlots();
+  renderSummary();
+  toast(`${product.name} added to fit ✦`, "ok");
+}
+
+function closePicker(e) {
+  if (e && e.target !== document.getElementById("pickerOverlay")) return;
+  document.getElementById("pickerOverlay").classList.remove("show");
+  pickerSlotKey = null;
+}
+
+// SAVE / LOAD OUTFITS
+function saveOutfit() {
+  const items = Object.values(currentOutfit);
+  if (!items.length) { toast("Build a fit first!", "err"); return; }
+  const nameInput = document.getElementById("outfitNameInput");
+  const name = nameInput.value.trim() || `Fit #${savedOutfits.length + 1}`;
+  const outfit = {
+    id: Date.now(),
+    name,
+    items: { ...currentOutfit },
+    total: items.reduce((s, p) => s + p.price, 0),
+    createdAt: new Date().toISOString()
+  };
+  savedOutfits.unshift(outfit);
+  localStorage.setItem("ss_outfits", JSON.stringify(savedOutfits));
+  nameInput.value = "";
+  renderSavedOutfits();
+  toast(`"${name}" saved! 💾`, "ok");
+}
+
+function loadOutfit(id) {
+  const outfit = savedOutfits.find(o => o.id === id);
+  if (!outfit) return;
+  currentOutfit = { ...outfit.items };
+  renderSlots();
+  renderSummary();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  toast(`Loaded "${outfit.name}" 🔥`, "ok");
+}
+
+function deleteOutfit(id) {
+  savedOutfits = savedOutfits.filter(o => o.id !== id);
+  localStorage.setItem("ss_outfits", JSON.stringify(savedOutfits));
+  renderSavedOutfits();
+  toast("Fit deleted");
+}
+
+function renderSavedOutfits() {
+  const grid = document.getElementById("savedOutfitsGrid");
+  if (!savedOutfits.length) {
+    grid.innerHTML = `<div class="empty" style="padding:40px 20px;grid-column:1/-1"><div class="empty-ico">🗂️</div><p>No saved fits yet. Build one and save it!</p></div>`;
+    return;
+  }
+  grid.innerHTML = savedOutfits.map(outfit => {
+    const items = Object.values(outfit.items);
+    const imgs = [...items.slice(0,4), ...Array(4).fill(null)].slice(0,4);
+    return `
+      <div class="saved-card">
+        <div class="saved-card-imgs">
+          ${imgs.map(p => p
+            ? `<img src="${p.imageUrl}" alt="${p.name}" />`
+            : `<div class="empty-slot-thumb">+</div>`
+          ).join("")}
+        </div>
+        <div class="saved-card-body">
+          <div class="saved-card-name">${outfit.name}</div>
+          <div class="saved-card-meta">
+            <span>${items.length} piece${items.length !== 1 ? 's' : ''}</span>
+            <span class="saved-card-total">₹${outfit.total.toLocaleString('en-IN')}</span>
+          </div>
+          <div class="saved-card-actions">
+            <button class="btn-load-outfit" onclick="loadOutfit(${outfit.id})">Load Fit</button>
+            <button class="btn-del-outfit" onclick="deleteOutfit(${outfit.id})">Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// ── END OUTFIT BUILDER ────────────────────────────────────────────────────────
+
+init();
+</script>
+</body>
+</html>
